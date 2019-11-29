@@ -13,5 +13,10 @@ General requirements are: nodeJS, npm, truffle, yarn. You will need to add some 
 
 Every folder has a step-by-step instruction file (Steps.txt) for trying out some of BESU features. 
 
+These tutorials use the following projects: 
+* https://github.com/ethereum/web3.js/
+* https://github.com/truffle-box/pet-shop-box
+* https://github.com/PegaSysEng/permissioning-smart-contracts
+
 Finally, learn more about Hyperledger Besu from the official documentation: https://besu.hyperledger.org/en/stable/. 
 
