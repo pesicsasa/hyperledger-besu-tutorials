@@ -1,0 +1,37 @@
+1. Let us explore the docker-compose yaml file to see what are we bringing up
+
+2. Bring up the network with ./run.sh
+
+3. Let's visit and explore all endpoints displayed in the terminal (or run list.sh to see the endpoints if they do not appear in the console)
+
+4. Let's see the POSTMAN collection now and try out some requests
+
+5. Set up MetaMask to try out transactions on this network (Install if needed - Chrome extension)
+    5.1 First we connect to our network from Metamask
+    5.2 We will create one wallet from Metamask
+    5.3 We will import two another test wallets with some Ether (pre-existing)
+        Private key wallet 1: 0x8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63
+        Private key wallet 2: 0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3
+
+6. Let's verify these accounts are on our BESU network by querying the balance for one of the wallets
+    6.1 Copy one wallet address from Metamask
+    6.2 In the POSTMAN REST APIs collection, under eth folder, find eth_getBalance APIs (the endpoint that executes the request is the same URL displayed when the network is run (or from list.sh) - the JSON-RPC HTTP service endpoint)
+    6.3 Execute the request with the address from 6.1
+
+7. Send some money through BESU network from one account to the other to verify transacting is possible
+    7.1 Verify the transaction in the blockchain explorer (get address from running list.sh) by coppying the transaction ID from Metamask and pasting to the explorer dashboard
+
+8. We will set up a smart contract on our private network - Pet Adoption Smart contract (pet-shop-tutorial folder). 
+    8.1 Let's take a look at the smart contract - there are 16 pets, and their adopters will be identified by their addresses: adopters[1] = address1 ->> meaning that pet with ID=1 was adopted by network user with address1
+    8.2 Let's also learn how to write smart contract tests - go to test folder and inspect the TestAdoption.sol smart contract
+    8.3 Run truffle development console with truffle develop and run truffle test to execute the test contract
+        
+9. Let's deploy the contract to our private Hyperledger Besu network
+    9.1 First set up truffle-config.js (set the JSON-RPC HTTP service endpoint address and the default wallet for deployment - can be any of the one's we have used above)
+    9.2 Compile contract by using truffle compile
+    9.3 Deploy the smart contract with truffle migrate --network quickstartWallet
+    8.3 Verify that the contrct is deployed on explorer - paste the contract address into explorer
+    The complete tutorial is also available at: https://www.trufflesuite.com/tutorials/pet-shop.
+
+9. Finally, check out the sample user interface (run with npm run dev) for pet adoption DApp
+    Metamask will ask permission to connect to the DApp, so keep it open and connected to the Besu network

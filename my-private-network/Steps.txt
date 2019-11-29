@@ -1,0 +1,68 @@
+1. Creating a folder structure for the network
+	1.1 Every node has its own folder (e.g. Node-1) and a data folder inside it for storing the blockchain
+
+2. Writing the network configuration file (ibftConfigFile.json)
+	**This network will use the IBFT consensus protocol. With IBFT blocks and transactions are validated by approved accounts called validators. 
+	**Validators will take turns to create the next block, and a super-majority (greater than 66%) of validators are required to sign the block before it is inserted into the chain.
+	**The configuration file has 2 subnested JSON nodes. 
+	**The first is the genesis property defining the IBFT 2.0 genesis file except for the extraData string. 
+	**The second is the blockchain property defining the number of key pairs to generate.
+
+3. Generate the network genesis file and Node-x keys
+	3.1 Run besu operator generate-blockchain-config --config-file=ibftConfigFile.json --to=networkFiles --private-key-file-name=key 
+	**This will generate a networkFiles folder with genesis.json and node keys inside
+	**Make sure that besu is in your PATH - you can also find it in the bin folder of this project
+	**The genesis file includes the extraData property specifying that the four nodes are validators
+	In the networkFiles directory, a Directory for each node named with the node address and containing the public and private key for each node
+
+4. Restructure the folders and files
+	4.1 Move genesis file to my-private-network root folder
+	4.2 Move key pairs to Node-x folders (one for each node)
+
+5. Inside each Node directory, create an Orion directory. Orion is an open-source private transaction manager. We must crete ORION key pairs for each of our nodes. 
+	5.1 In each Orion directory, there is a file called passwordFile containing a password to encrypt each Orion key pair. 5.2 Then, the Orion public/private key pair is generated with the orion -g nodeKey command. The keys saved as nodeKey.pub and nodeKey.key files.
+	** Change the password if needed
+	
+6. Next, we must create Orion configuration files in each Orion folder
+	6.1 There is a sample orion.conf file in Node-x/Orion directory - Ports must not overlap!
+	**If there is a need change anything you want
+	
+7. We run all Orion nodes first with start_orion_x.sh command. Make sure the start_orion_x.sh has the permission to execute (Do sudo sudo chmod +x start*.sh)
+
+8. Start Hyperledger BESU Node-1 (use the command or take a look at the start_node_1.sh script)
+	8.1 Start Besu node with command: besu --data-path=data --genesis-file=../genesis.json --rpc-http-enabled --rpc-http-api=ETH,NET,IBFT,EEA,PRIV --host-whitelist="*" --rpc-http-cors-origins="all"\
+	--privacy-enabled --privacy-url=http://127.0.0.1:8888 --privacy-public-key-file=Orion/nodeKey.pub --min-gas-price=0  
+		Explanations for the arguments specified:  
+			-- Data directory for Node-1 using the --data-path option.
+			-- JSON-RPC API is enabled using the --rpc-http-enabled option
+			-- ETH,NET, and IBFT APIs are enabled using the --rpc-http-api option
+			-- All hosts can access the HTTP JSON-RPC API using the --host-whitelist option
+			-- All domains can access the node using the HTTP JSON-RPC API using the --rpc-http-cors-origins option
+			-- privacy-enabled enables privacy
+			-- privacy-url specifies the Orion node URL (clienturl in orion.conf)
+			-- privacy-public-key-file specifies the file containing Orion node public key (created in 3. Generate Orion Keys)
+			-- rpc-http-api includes EEA and PRIV in the list of JSON-RPC APIs to enable privacy JSON-RPC API methods.
+			-- min-gas-price set to 0 for a free gas network.
+
+9. Start the other nodes in the same manner (manually or use start_node_x.sh scripts)
+	* Do not forget to ADD --bootnodes= argument to 
+	* Change privacy-url to port from orion.conf
+	* Change p2p-port
+	* Change rpc-http-port
+
+9. Run a request to check the number of peers connected to Node-1 (the request should return 3/0x3)
+        curl -X POST --data '{"jsonrpc":"2.0","method":"net_peerCount","params":[],"id":1}' localhost:8545
+
+10. This setup enables privacy, but let's show how we would embed privacy inside a smart contract (run npm install inside the eea folder first)
+	10.1 Go to example/solidity and explore the EventEmmitter.sol smart contract. The contract executes simple storage of integer values and emmition of event when storing happens. 
+	10.2 Go to the example/multiNodeExample folder and explore the code we are using to deploy the smart contract to the test network (deployContract.js). Line 16 is crucial (createPrivateEmitterContract) because we specify the privace regulations for this particular smart contract.
+	10.3 Make sure that the example/keys.json file is in accordance to your Besu and Orion keys
+	Update the keys.json in examples of EEAJS
+	10.4 Run deployContract.js to deploy the contract to our network
+
+11. Export contract address with export CONTRACT_ADDRESS=addressFromConsole
+
+12. Let's try the smart contract functions
+	node storeValueFromNode1.js
+	node storeValueFromNode2.js
+	*The Node 3 Orion log messages will indicate payloads cannot be found. This is expected behaviour because Node 3 does not have access to the private transactions between Node 1 and Node 2.

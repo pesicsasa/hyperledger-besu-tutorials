@@ -1,0 +1,47 @@
+table thead tr th.headerCell {
+  text-transform: capitalize;
+}
+
+tr td.emptyLine {
+  text-align: center;
+  color: #8f8f8f;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.pill {
+  border-radius: 15px;
+  width: auto;
+  height: 30px;
+  cursor: default;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.row:hover {
+  .removeIcon {
+    opacity: 1;
+  }
+}
+
+.removeIcon {
+  opacity: 0;
+  transition: color 0.2s ease-in-out, opacity 0.5s ease-in-out;
+  &:hover {
+    color: #222;
+  }
+
+  &:focus {
+    opacity: 1;
+    color: #222;
+  }
+}
+
+.infoIcon {
+  color: #aaa;
+  transition: color 0.3s ease-in-out;
+  &:hover {
+    color: #777;
+    cursor: pointer;
+  }
+}

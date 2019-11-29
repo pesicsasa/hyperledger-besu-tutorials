@@ -1,0 +1,27 @@
+1. When a Besu network is using Clique, the address of at least one initial signer must be included in the genesis file. For this network, we will use Node-1 as the initial signer. This requires obtaining the address for Node-1. We need to export its address by running: besu --data-path=data public-key export-address --to=data/nodeAddress1.
+
+2. Let's create a genesis file for our network (cliqueGenesis.json). This genesis file will be very similar to genesis.json from my-private network, with a notable few differences:
+	* We need to put Node-1 address into the extraData field to declare it as initial signer at a certain spot.
+	* Under the alloc key we want to add the two smart contract we must deploy when using permission-enabled Hyperledger Besu networks (the last two accounts). Do not modify their addresses nor code. 
+
+4. Let's create the permissions file and copy it to each data folder. This is Besu offline-permissioning. Permissions are specified at the node level. The permissions_config.toml file must be saved in the data directory for each node. This file will tell the nodes what are the initial whitelisted accounts and nodes. Note that the list can be empty. For Besu on-chain permissioning we are going to use the smart contracts specified in the genesis file. 
+
+5. Start all nodes with start_node_x.sh
+
+7. To update the nodes whitelist when the node is running, use the JSON-RPC API methods displayed in addNodes.sh. If you have supplied permissions through the .toml file you can skip this step, unless you want to try to update. Whitelist only the first three nodes, and accounts of your choice. 
+
+8. Add Nodes as network Peers (necessary for P2P communication, look at commands in addNodes.sh)
+
+9. Lets import our accounts (found in genesis file) in MetaMask and try sending transactions
+
+10. Start another node (Node-4), with bootnode Node-a that is not whitelisted in our permissioned network and confirm that it will have no valid peers!
+
+11. The permissioning smart contracts are inside the permissioning-smart-contracts folder. 
+	11.1 Look at setEnv.sh file in the root folder, and change some of the env variables if needed. Make sure each one of them is correctly set. If everything is set, then the truffle-config.js will pull data from environment to deploy your smart contracts. 
+	11.2 Run yarn install
+	11.3 Deploy the permissioning smart contract on the private blockchain network with yarn truffle migrate (add --reset when it is not the first time you are deploying).
+
+12. Let's start the Permissioning Management Dapp with yarn start
+	12.1 Visit the DAPP at localhost:3000
+	12.2 The account that is the administrator (used to deploy the contract) should be active in Metamask, otherwise no actions will be possible through the dashboard
+
